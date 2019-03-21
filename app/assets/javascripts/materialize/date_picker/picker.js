@@ -612,10 +612,15 @@ function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
             $ELEMENT.
 
                 // On focus/click, focus onto the root to open it up.
-                on( 'focus.' + STATE.id + ' click.' + STATE.id, function( event ) {
+            
+// HAMISH  - fix for pop up closing straight away. 
+//https://github.com/amsul/pickadate.js/commit/9282a8021c47e39d1aee72d69557d6e4ee68034d            
+            
+                on( 'focus.' + STATE.id + ' click.' + STATE.id, 
+                   debounce(function( event ) {
                     event.preventDefault()
                     P.$root.eq(0).focus()
-                }).
+                }, 100)).
 
                 // Handle keyboard event based on the picker being opened or not.
                 on( 'keydown.' + STATE.id, handleKeydownEvent )
@@ -1036,7 +1041,22 @@ PickerConstructor._ = {
     ariaAttr: ariaAttr
 } //PickerConstructor._
 
-
+// HAMISH  - fix for pop up closing straight away. 
+//https://github.com/amsul/pickadate.js/commit/9282a8021c47e39d1aee72d69557d6e4ee68034d
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+}
 
 /**
  * Extend the picker with a component and defaults.
